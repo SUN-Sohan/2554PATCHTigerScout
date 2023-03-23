@@ -126,6 +126,37 @@ const LocalData = ({route, navigation}) => {
 
 		return;
 	}
+	
+	// ABSTRACTED FUNCTION
+	const uploadDataToCloudPeriodic = async () => {
+		let storage = null;
+		try {
+			storage = getStorage();
+		} catch (e) {
+			return;
+		}
+
+		let multiStringData = [];
+		try {
+			multiStringData = await readMultipleDataKeys(matchKeys);
+		} catch (e) {
+			return;
+		}
+		const filenames = matchKeys.map(
+			(keyName) => {
+				const components = keyName.split("-");
+				const teamNumberPadded = components[0].slice(3).padStart(4, "0");
+				let filename = `${teamNumberPadded}-${components.slice(1).join("-")}.txt`;
+
+				if (settings !== null) filename = `${settings.subpath}/${filename}`
+
+				return filename;
+			}
+		);
+		await uploadMultipleStringsToCloud(storage, multiStringData, filenames);
+
+		return;
+	}
 
 
 	// Loads all keys and removes any that don't contain matchdata

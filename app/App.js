@@ -6,6 +6,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 
+// Background Sync imports
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
+
 // Block imports
 import Homescreen from './blocks/screens/Homescreen';
 import ScoutTeam from './blocks/screens/ScoutTeam';
@@ -17,9 +21,13 @@ import Settings from './blocks/screens/Settings';
 // Component imports
 import { ColorScheme as CS } from './common/ColorScheme';
 import { fU, vh } from './common/Constants';
+import { uploadDataToCloudPeriodic } from './blocks/screens/LocalData';
 
 // Navigation setup (https://reactnavigation.org/docs very useful)
 const Stack = createNativeStackNavigator();
+
+// background fetch constant
+const BACKGROUND_FETCH_TASK = 'background-fetch';
 
 // Main function
 const App = () => {
@@ -101,6 +109,16 @@ const App = () => {
         </NavigationContainer>
     );
 }
+
+TaskManager.defineTask(BACKGROUND_FETCH_TASK, uploadDataToCloudPeriodic);
+
+  async function registerBackgroundFetchAsync() {
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 60 * 5,
+      stopOnTerminate: true,
+      startOnBoot: true,
+    });
+  }
 
 const styles = StyleSheet.create({
     headerStyle: {
